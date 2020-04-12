@@ -1,0 +1,5 @@
+{
+  "SECRET_KEY": "changemenow",
+  "MPC_SERVER": "192.168.1.58",
+  "MPC_PORT": 6600
+}
