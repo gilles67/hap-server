@@ -16,7 +16,6 @@ def gpio_exit():
     GPIO.cleanup()
 
 class PowerButton(Thread):
-
     def __init__(self, client):
         Thread.__init__(self)
         self.client = client
@@ -34,14 +33,45 @@ class PowerButton(Thread):
                 time.sleep(self.attend)
             time.sleep(self.attend)
 
+class PowerLed(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.continu = True;
+        self.attend = 10 / 1000
+        self.stat = "Off"
+        self.lock_stat = ""
+
+    def stop(self):
+        self.continu = False
+        self.join()
+
+    def setLed(self, value):
+        self.stat = value
+
+    def run(self):
+        while self.continu:
+            with verrou:
+                if self.stat != self.lock_stat:
+                    if self.stat == "On":
+                        GPIO.output(13, GPIO.LOW)
+                    if self.stat == "Off":
+                        GPIO.output(13, GPIO.HIGH)
+                    self.lock_stat = self.stat
+                if self.stat == "Blink":
+                    GPIO.output(13, not GPIO.input(13))
+                    self.lock_stat = self.stat
+            time.sleep(self.attend)
+
 def setAudioPower(value):
-    if value == "On":
-        GPIO.output(6, GPIO.LOW)
-    if value == "Off":
-        GPIO.output(6, GPIO.HIGH)
+    with verrou:
+        if value == "On":
+            GPIO.output(6, GPIO.LOW)
+        if value == "Off":
+            GPIO.output(6, GPIO.HIGH)
 
 def setAmpliPower(value):
-    if value == "On":
-        GPIO.output(5, GPIO.LOW)
-    if value == "Off":
-        GPIO.output(5, GPIO.HIGH)
+    with verrou:
+        if value == "On":
+            GPIO.output(5, GPIO.LOW)
+        if value == "Off":
+            GPIO.output(5, GPIO.HIGH)
