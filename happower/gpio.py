@@ -36,9 +36,9 @@ class PowerButton(Thread):
                 stat = GPIO.input(13)
             if stat == self.last_stat:
                 if stat == GPIO.HIGH:
-                    client.publish("hap/power/button/stat", "HIGH")
+                    self.client.publish("hap/power/button/stat", "HIGH")
                 if stat == GPIO.LOW:
-                    client.publish("hap/power/button/stat", "LOW")
+                    self.client.publish("hap/power/button/stat", "LOW")
             if stat != self.last_stat:
                 self.last_stat = stat
             time.sleep(self.attend)
