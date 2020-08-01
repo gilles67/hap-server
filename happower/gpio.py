@@ -35,13 +35,13 @@ class PowerButton(Thread):
             time.sleep(self.attend)
 
 def setAudioPower(value):
-    if value:
+    if value == "On":
         GPIO.output(6, GPIO.LOW)
-    else:
+    if value == "Off":
         GPIO.output(6, GPIO.HIGH)
 
 def setAmpliPower(value):
-    if value:
+    if value == "On":
         GPIO.output(5, GPIO.LOW)
-    else:
+    if value == "Off":
         GPIO.output(5, GPIO.HIGH)
