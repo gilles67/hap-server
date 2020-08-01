@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-from happower import pl
+from happower import pbutton, pled
 from gpio import setAudioPower, setAmpliPower
 
 def on_connect(client, userdata, flags, rc):
@@ -13,7 +13,7 @@ def on_message(client, userdata, msg):
     if msg.topic == "hap/power/ampli/set":
         setAmpliPower(payload)
     if msg.topic == "hap/power/led/set":
-        pl.setLed(payload)
+        pled.setLed(payload)
     print(msg.topic+" "+str(msg.payload))
 
 client = mqtt.Client()

@@ -16,11 +16,13 @@ def gpio_exit():
     GPIO.cleanup()
 
 class PowerButton(Thread):
-    def __init__(self, client):
+    def __init__(self):
         Thread.__init__(self)
-        self.client = client
-        self.continu = True;
+        self.continu = True
         self.attend = 20 / 1000
+
+    def setClient(self, client):
+        self.client = client
 
     def stop(self):
         self.continu = False
