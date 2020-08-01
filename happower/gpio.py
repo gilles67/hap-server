@@ -37,11 +37,11 @@ class PowerButton(Thread):
                 stat = GPIO.input(26)
                 if stat != self.last_stat:
                     if stat == GPIO.HIGH:
-                        if stat_counter < 10:
+                        if self.stat_counter < 10:
                             action = "no press"
-                        if stat_counter > 10 and stat_counter < 100:
+                        if self.stat_counter > 10 and self.stat_counter < 100:
                             action = "short press"
-                        if stat_counter > 100:
+                        if self.stat_counter > 100:
                             action = "long press"
                     if stat == GPIO.LOW:
                         self.stat_counter = 0
