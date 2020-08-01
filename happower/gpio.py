@@ -20,6 +20,8 @@ class PowerButton(Thread):
         Thread.__init__(self)
         self.continu = True
         self.attend = 20 / 1000
+        self.last_stat = False
+        self.stat_counter = 0
 
     def setClient(self, client):
         self.client = client
@@ -29,17 +31,23 @@ class PowerButton(Thread):
         self.join()
 
     def run(self):
-
         while self.continu:
             with verrou:
-                time.sleep(self.attend)
+                stat = GPIO.input(13)
+            if stat == self.last_stat:
+                if stat == GPIO.HIGH:
+                    client.publish("hap/power/button/stat", "HIGH")
+                if stat == GPIO.LOW:
+                    client.publish("hap/power/button/stat", "LOW")
+            if stat != self.last_stat:
+                self.last_stat = stat
             time.sleep(self.attend)
 
 class PowerLed(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.continu = True;
-        self.attend = 10 / 1000
+        self.attend = 200 / 1000
         self.stat = "Off"
         self.lock_stat = ""
 
