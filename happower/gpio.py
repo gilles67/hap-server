@@ -6,11 +6,11 @@ import sys
 verrou = RLock()
 
 def gpio_init():
-    GPIO.setmode(gpio.BCM)
-    GPIO.setup(19, gpio.IN, pull_up_down=gpio.PUD_UP)
-    GPIO.setup(13, gpio.OUT, initial=gpio.HIGH)
-    GPIO.setup(5, gpio.OUT, initial=gpio.HIGH)
-    GPIO.setup(6, gpio.OUT, initial=gpio.HIGH)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(13, GPIO.OUT, initial=GPIO.HIGH)
+    GPIO.setup(5, GPIO.OUT, initial=GPIO.HIGH)
+    GPIO.setup(6, GPIO.OUT, initial=GPIO.HIGH)
 
 def gpio_exit():
     GPIO.cleanup()
@@ -36,12 +36,12 @@ class PowerButton(Thread):
 
 def setAudioPower(value):
     if value:
-        GPIO.output(6, gpio.LOW)
+        GPIO.output(6, GPIO.LOW)
     else:
-        GPIO.output(6, gpio.HIGH)
+        GPIO.output(6, GPIO.HIGH)
 
 def setAmpliPower(value):
     if value:
-        GPIO.output(5, gpio.LOW)
+        GPIO.output(5, GPIO.LOW)
     else:
-        GPIO.output(5, gpio.HIGH)
+        GPIO.output(5, GPIO.HIGH)
