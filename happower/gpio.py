@@ -7,7 +7,7 @@ verrou = RLock()
 
 def gpio_init():
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(13, GPIO.OUT, initial=GPIO.HIGH)
     GPIO.setup(5, GPIO.OUT, initial=GPIO.HIGH)
     GPIO.setup(6, GPIO.OUT, initial=GPIO.HIGH)
@@ -33,14 +33,24 @@ class PowerButton(Thread):
     def run(self):
         while self.continu:
             with verrou:
-                stat = GPIO.input(13)
-            if stat == self.last_stat:
-                if stat == GPIO.HIGH:
-                    self.client.publish("hap/power/button/stat", "HIGH")
-                if stat == GPIO.LOW:
-                    self.client.publish("hap/power/button/stat", "LOW")
-            if stat != self.last_stat:
-                self.last_stat = stat
+                action = None
+                stat = GPIO.input(26)
+                if stat != self.last_stat:
+                    if stat == GPIO.HIGH:
+                        if stat_counter < 10:
+                            action = "no press"
+                        if stat_counter > 10 and stat_counter < 100:
+                            action = "short press"
+                        if stat_counter > 100:
+                            action = "long press"
+                    if stat == GPIO.LOW:
+                        self.stat_counter = 0
+                    self.last_stat = stat
+                if stat == self.last_stat:
+                    if stat == GPIO.LOW:
+                        self.stat_counter += 1
+            if action:
+                self.client.publish("hap/power/button/action", action)
             time.sleep(self.attend)
 
 class PowerLed(Thread):
