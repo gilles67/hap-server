@@ -6,10 +6,11 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("hap/power/#")
 
 def on_message(client, userdata, msg):
+    payload = msg.payload.decode('UTF-8')
     if msg.topic == "hap/power/audio/set":
-        setAudioPower(msg.payload)
+        setAudioPower(payload)
     if msg.topic == "hap/power/ampli/set":
-        setAmpliPower(msg.payload)
+        setAmpliPower(payload)
     print(msg.topic+" "+str(msg.payload))
 
 client = mqtt.Client()
