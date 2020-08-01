@@ -31,7 +31,7 @@ class PowerButton(Thread):
 
         while self.continu:
             with verrou:
-
+                time.sleep(self.attend)
             time.sleep(self.attend)
 
 def setAudioPower(value):

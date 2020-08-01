@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-import gpio import setAudioPower, setAmpliPower
+from gpio import setAudioPower, setAmpliPower
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
