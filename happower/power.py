@@ -69,4 +69,4 @@ class PowerManagement(Thread):
                             self.seq_progress = 3
                             self.EndSequence()
 
-        time.sleep(self.attend)
+            time.sleep(self.attend)
