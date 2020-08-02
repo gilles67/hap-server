@@ -1,6 +1,8 @@
 from gpio import setAudioPower, setAmpliPower
 from happower import pled
 from threading import Thread, RLock
+import time
+import sys
 import json
 
 pm_verrou = RLock()
