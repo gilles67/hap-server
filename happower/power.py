@@ -65,13 +65,26 @@ class PowerManagement(Thread):
                             setAudioPower('On')
                             pled.setLed("Blink")
                             self.publishStatus()
-                        if self.counter == 4:
+                        if self.counter == 10:
                             self.seq_progress = 2
                             setAmpliPower('On')
                             self.publishStatus()
-                        if self.counter == 8:
+                        if self.counter == 14:
                             self.seq_progress = 3
                             pled.setLed("On")
                             self.EndSequence()
-
+                    if self.seq_name == "Off":
+                        if self.counter == 1:
+                            self.seq_progress = 1
+                            setAmpliPower('Off')
+                            pled.setLed("Blink")
+                            self.publishStatus()
+                        if self.counter == 8:
+                            self.seq_progress = 2
+                            setAudioPower('Off')
+                            self.publishStatus()
+                        if self.counter == 18:
+                            self.seq_progress = 3
+                            pled.setLed("Off")
+                            self.EndSequence()
             time.sleep(self.attend)
