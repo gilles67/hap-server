@@ -57,6 +57,8 @@ class PowerManagement(Thread):
             with pm_verrou:
                 if self.seq_lock:
                     self.counter += 1
+                    sys.stdout.write(self.counter)
+                    sys.stdout.flush()
                     if self.seq_name == "On":
                         if self.counter == 1:
                             self.seq_progress = 1
