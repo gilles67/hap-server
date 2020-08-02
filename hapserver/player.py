@@ -38,9 +38,12 @@ def action_socket(message):
             mpclient.setvol(vol)
 
         if message['action'] == 'vol-minus':
-            vol = int(status['volume']) - 10
-            if vol < 0:
-                vol = 0
+            if 'volume' in status:
+                vol = int(status['volume']) - 10
+                if vol < 0:
+                    vol = 0
+            else:
+                vol = 10
             mpclient.setvol(vol)
 
         if message['action'] == 'vol-mute':

@@ -1,3 +1,4 @@
+from mpd import MPDClient
 from gpio import setAudioPower, setAmpliPower
 from happower import pled
 from threading import Thread, RLock
@@ -17,6 +18,8 @@ class PowerManagement(Thread):
         self.seq_progress = 0
         self.counter = 0
         self.client = None
+        self.current_state = "Off"
+        self.mpd = MPDClient()
 
     def setClient(self, client):
         self.client = client
@@ -24,6 +27,15 @@ class PowerManagement(Thread):
     def stop(self):
         self.continu = False
         self.join()
+        try:
+            self.mpd.close()
+            self.mpd.disconnect()
+            
+    def TogglePower(self):
+        if self.current_state == "Off":
+            self.OnSequence()
+        if self.current_state == "On":
+            self.OffSequence()
 
     def OnSequence(self):
         if self.seq_lock:
@@ -53,6 +65,9 @@ class PowerManagement(Thread):
         self.counter = 0
 
     def run(self):
+        self.mpd.timeout = 10
+        self.mpd.idletimeout = None
+        self.mpd.connect("localhost", 6600)
         while self.continu:
             with pm_verrou:
                 if self.seq_lock:
@@ -71,6 +86,7 @@ class PowerManagement(Thread):
                             self.publishStatus()
                         if self.counter == 14:
                             self.seq_progress = 3
+                            self.current_state = "On"
                             pled.setLed("On")
                             self.EndSequence()
                     if self.seq_name == "Off":
@@ -85,6 +101,7 @@ class PowerManagement(Thread):
                             self.publishStatus()
                         if self.counter == 18:
                             self.seq_progress = 3
+                            self.current_state = "Off"
                             pled.setLed("Off")
                             self.EndSequence()
             time.sleep(self.attend)
