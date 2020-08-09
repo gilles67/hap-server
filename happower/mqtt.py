@@ -22,7 +22,8 @@ def on_message(client, userdata, msg):
     if msg.topic == "hap/power/button/action":
         if payload == "short press":
             pmanage.TogglePower()
-    
+
+
     print(msg.topic+" "+str(msg.payload))
 
 

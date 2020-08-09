@@ -19,7 +19,7 @@ class PowerButton(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.continu = True
-        self.attend = 20 / 1000
+        self.attend = 30 / 1000
         self.last_stat = False
         self.stat_counter = 0
 
@@ -37,11 +37,11 @@ class PowerButton(Thread):
                 stat = GPIO.input(26)
                 if stat != self.last_stat:
                     if stat == GPIO.HIGH:
-                        if self.stat_counter < 10:
+                        if self.stat_counter < 5:
                             action = "no press"
-                        if self.stat_counter > 10 and self.stat_counter < 100:
+                        if self.stat_counter > 5 and self.stat_counter < 50:
                             action = "short press"
-                        if self.stat_counter > 100:
+                        if self.stat_counter > 50:
                             action = "long press"
                     if stat == GPIO.LOW:
                         self.stat_counter = 0

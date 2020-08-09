@@ -30,6 +30,8 @@ class PowerManagement(Thread):
         try:
             self.mpd.close()
             self.mpd.disconnect()
+        except:
+            pass
             
     def TogglePower(self):
         if self.current_state == "Off":
