@@ -51,7 +51,6 @@ class SoundCard:
             return round((value * 0.1) + 90)
 
 
-
 def getSoundCards():
     cards = array()
     for i in alsaaudio.card_indexes():
@@ -60,6 +59,7 @@ def getSoundCards():
 
 
 def setAlsaVolume(payload, client):
+    print ("Hello")
     with al_lock:
         xmos = SoundCard(1)
         xmos.loadMixers()

@@ -1,5 +1,6 @@
 import mpd
 import eventlet
+import paho.mqtt.client as mqtt
 from threading import Lock
 from flask_socketio import emit
 from tinydb import Query
@@ -8,14 +9,19 @@ from hapserver import socketio, mpclient, tydb, app
 mpd_thread = None
 mpd_thread_lock = Lock()
 
+mqttcls = None
+mqtt_thread = None
+
 @socketio.on('action')
 def action_socket(message):
     try:
         mpclient.ping()
     except Exception as e:
         mpclient.connect(app.config['MPC_SERVER'], int(app.config['MPC_PORT']))
-
     status = mpclient.status()
+
+
+
     if 'action' in message:
         if message['action'] == 'play':
             if 'radio' in message:
@@ -63,10 +69,16 @@ def action_socket(message):
 @socketio.on('connect')
 def test_connect():
     global mpd_thread
+    global mqtt_thread
     with mpd_thread_lock:
         if mpd_thread is None:
             mpd_thread = socketio.start_background_task(follow_mpclient)
-            app.logger.info('mpd_thread start : follow_mpclient')
+            app.logger.info('[MPD] mpd_thread start : follow_mpclient')
+        if mqtt_thread is None:
+            mqtt_thread = socketio.start_background_task(follow_happower)
+            app.logger.info('[MQTT] mqtt_thread start : follow_happower')
+
+## MPD
 
 def follow_mpclient():
     mpdcls = mpd.MPDClient(use_unicode=True)
@@ -92,3 +104,26 @@ def follow_mpclient():
             app.logger.info('mpd_thread break, continue=%s', will_continue)
     app.logger.info('mpd_thread exited')
     mpdcls.close()
+
+## MQTT (happower)
+
+def mqtt_connect(client, userdata, flags, rc):
+    app.logger.info('mqtt_thread connect, code=%s', rc)
+    client.subscribe("hap/power/#")
+    client.subscribe("hap/alsa/#")
+
+def mqtt_message(client, userdata, msg):
+    app.logger.info('mqtt_thread message, topic=%s, payload=%s', msg.topic, msg.payload)
+    socketio.emit('action_reply', {'topic':msg.topic, 'payload':  msg.payload })
+
+def follow_happower():
+    mqttcls = mqtt.Client()
+    mqttcls.on_connect = mqtt_connect
+    mqttcls.on_message = mqtt_message
+    will_continue = True
+    while will_continue:
+        try:
+            mqttcls.loop_forever()
+        except:
+            will_continue = False
+            app.logger.info('mqtt_thread break')

@@ -42,6 +42,8 @@ class PowerManagement(Thread):
     def OnSequence(self):
         if self.seq_lock:
             return False
+        if self.current_state == "On":
+            return False
         self.seq_lock = True
         self.seq_name = "On"
         self.seq_progress = 0
@@ -49,6 +51,8 @@ class PowerManagement(Thread):
 
     def OffSequence(self):
         if self.seq_lock:
+            return False
+        if self.current_state == "Off":
             return False
         self.seq_lock = True
         self.seq_name = "Off"

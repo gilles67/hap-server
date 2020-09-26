@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 from happower import pbutton, pled, pmanage
 from gpio import setAudioPower, setAmpliPower
+from alsa import setAlsaVolume
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -27,7 +28,6 @@ def on_message(client, userdata, msg):
         setAlsaVolume(payload)
 
     print(msg.topic+" "+str(msg.payload))
-
 
 
 client = mqtt.Client()
