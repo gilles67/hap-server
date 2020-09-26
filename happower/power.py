@@ -12,7 +12,7 @@ class PowerManagement(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.continu = True
-        self.attend = 500 / 1000
+        self.wait_time = 500 / 1000
         self.seq_lock = False
         self.seq_name = None
         self.seq_progress = 0
@@ -32,7 +32,7 @@ class PowerManagement(Thread):
             self.mpd.disconnect()
         except:
             pass
-            
+
     def TogglePower(self):
         if self.current_state == "Off":
             self.OnSequence()
@@ -106,4 +106,4 @@ class PowerManagement(Thread):
                             self.current_state = "Off"
                             pled.setLed("Off")
                             self.EndSequence()
-            time.sleep(self.attend)
+            time.sleep(self.wait_time)

@@ -5,6 +5,7 @@ from gpio import setAudioPower, setAmpliPower
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     client.subscribe("hap/power/#")
+    client.subscribe("hap/alsa/#")
 
 def on_message(client, userdata, msg):
     payload = msg.payload.decode('UTF-8')
@@ -22,7 +23,8 @@ def on_message(client, userdata, msg):
     if msg.topic == "hap/power/button/action":
         if payload == "short press":
             pmanage.TogglePower()
-
+    if msg.topic == "hap/alsa/volume/set":
+        setAlsaVolume(payload)
 
     print(msg.topic+" "+str(msg.payload))
 
