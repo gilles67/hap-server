@@ -59,10 +59,12 @@ def getSoundCards():
 
 
 def setAlsaVolume(payload, client):
-    print ("Hello")
     with al_lock:
-        xmos = SoundCard(1)
-        xmos.loadMixers()
-        xmos.setVolume(int(payload))
-        xmos.getVolume()
-        client.publish('hap/alsa/volume', int(payload))
+        try:
+            xmos = SoundCard(1)
+            xmos.loadMixers()
+            xmos.setVolume(int(payload))
+            xmos.getVolume()
+            client.publish('hap/alsa/volume', int(payload))
+        except:
+            print("Volume Set Error")

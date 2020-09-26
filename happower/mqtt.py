@@ -25,7 +25,7 @@ def on_message(client, userdata, msg):
         if payload == "short press":
             pmanage.TogglePower()
     if msg.topic == "hap/alsa/volume/set":
-        setAlsaVolume(payload)
+        setAlsaVolume(payload, client)
 
     print(msg.topic+" "+str(msg.payload))
 
