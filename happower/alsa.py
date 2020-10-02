@@ -85,9 +85,14 @@ def setAlsaVolume(payload, client):
             xmos.loadMixers()
             xmos.setVolume(volume)
             xmos.getVolume()
+        except Exception as err:
+            print("Volume Set Error")
+            print(err)
+        try:
             if(current_state == "mute"):
                 client.publish('hap/alsa/volume', 0)
             else:
                 client.publish('hap/alsa/volume', int(volume))
-        except:
-            print("Volume Set Error")
+        except Exception as err:
+            print("MQTT Error")
+            print(err)
