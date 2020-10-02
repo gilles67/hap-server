@@ -64,14 +64,15 @@ def getSoundCards():
     return cards
 
 def setMixerVolume(volume):
-    try:
-        xmos = SoundCard(1)
-        xmos.loadMixers()
-        xmos.setVolume(volume)
-        xmos.getVolume()
-    except Exception as err:
-        print("Volume Set Error")
-        print(err)
+    with al_lock:
+        try:
+            xmos = SoundCard(1)
+            xmos.loadMixers()
+            xmos.setVolume(volume)
+            xmos.getVolume()
+        except Exception as err:
+            print("Volume Set Error")
+            print(err)
 
 def saveVolume(volume):
     try:
@@ -83,52 +84,51 @@ def saveVolume(volume):
         print(err)
 
 def resumeVolume():
+    global current_volume
     try:
         fd = open('/etc/hap/alsa/volume', 'r')
         volume = int(fd.read())
         fd.close()
     except Exception as err:
-        volume = 0
+        volume = 50
         print("Resume volume error")
         print(err)
+    current_volume = volume
     return volume
 
 
 def setAlsaVolume(payload, client):
     global current_state
     global current_volume
-    with al_lock:
-
-        if str(payload) == "vol-mute":
-            if(current_state == "mute"):
-                current_state = "live"
-                volume = current_volume
-            else:
-                current_state = "mute"
-                volume = 0
+    if str(payload) == "vol-mute":
+        if(current_state == "mute"):
+            current_state = "live"
+            volume = current_volume
         else:
-            try:
-                volume = int(payload)
-            except:
-                if str(payload) == "vol-plus":
-                    volume = current_volume + 5
-                elif str(payload) == "vol-minus":
-                    volume = current_volume - 5
-            if volume < 0:
-                volume = 0
-            if volume > 100:
-                volume = 100
-            current_volume = volume
-
-        setVolume(volume)
-
+            current_state = "mute"
+            volume = 0
+    else:
         try:
-            if(current_state == "mute"):
-                client.publish('hap/alsa/volume', "mute")
-            else:
-                client.publish('hap/alsa/volume', int(volume))
-        except Exception as err:
-            print("MQTT Error")
-            print(err)
+            volume = int(payload)
+        except:
+            if str(payload) == "vol-plus":
+                volume = current_volume + 5
+            elif str(payload) == "vol-minus":
+                volume = current_volume - 5
+        if volume < 0:
+            volume = 0
+        if volume > 100:
+            volume = 100
+        current_volume = volume
+        saveVolume(current_volume)
 
-        saveVolume()
+    setMixerVolume(volume)
+
+    try:
+        if(current_state == "mute"):
+            client.publish('hap/alsa/volume', "mute")
+        else:
+            client.publish('hap/alsa/volume', int(volume))
+    except Exception as err:
+        print("MQTT Error")
+        print(err)

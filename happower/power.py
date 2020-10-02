@@ -1,6 +1,7 @@
 from mpd import MPDClient
 from gpio import setAudioPower, setAmpliPower
 from happower import pled
+from alsa import resumeVolume, setMixerVolume
 from threading import Thread, RLock
 import time
 import sys
@@ -92,9 +93,15 @@ class PowerManagement(Thread):
                             self.publishStatus()
                         if self.counter == 14:
                             self.seq_progress = 3
+                            volume = resumeVolume()
+                            setMixerVolume(volume)
+                            self.publishStatus()
+                        if self.counter == 20:
+                            self.seq_progress = 4
                             self.current_state = "On"
                             pled.setLed("On")
                             self.EndSequence()
+
                     if self.seq_name == "Off":
                         if self.counter == 1:
                             self.seq_progress = 1
