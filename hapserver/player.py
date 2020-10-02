@@ -1,6 +1,7 @@
 import mpd
 import eventlet
 import paho.mqtt.client as mqtt
+import paho.mqtt.publish as publish
 from threading import Lock
 from flask_socketio import emit
 from tinydb import Query
@@ -19,9 +20,6 @@ def action_socket(message):
     except Exception as e:
         mpclient.connect(app.config['MPC_SERVER'], int(app.config['MPC_PORT']))
     status = mpclient.status()
-
-
-
     if 'action' in message:
         if message['action'] == 'play':
             if 'radio' in message:
@@ -38,32 +36,16 @@ def action_socket(message):
             mpclient.stop()
 
         if message['action'] == 'vol-plus':
-            vol = int(status['volume']) + 10
-            if vol > 100:
-                vol = 100
-            mpclient.setvol(vol)
+            publish.single("hap/alsa/volume/set", "vol-plus", hostname=app.config['MPC_SERVER'])
 
         if message['action'] == 'vol-minus':
-            if 'volume' in status:
-                vol = int(status['volume']) - 10
-                if vol < 0:
-                    vol = 0
-            else:
-                vol = 10
-            mpclient.setvol(vol)
+            publish.single("hap/alsa/volume/set", "vol-minus", hostname=app.config['MPC_SERVER'])
 
         if message['action'] == 'vol-mute':
-            mpclient.setvol(0)
-
+            publish.single("hap/alsa/volume/set", "vol-mute", hostname=app.config['MPC_SERVER'])
         if message['action'] == 'volume':
             if 'volume' in message:
-                vol = int(message['volume'])
-                if vol > 100:
-                    vol = 100
-                if vol < 0:
-                    vol = 0
-                mpclient.setvol(vol)
-
+                publish.single("hap/alsa/volume/set", int(message['volume']), hostname=app.config['MPC_SERVER'])
     emit('action_reply',{ 'status': mpclient.status(), 'song': mpclient.currentsong()})
 
 @socketio.on('connect')
@@ -113,17 +95,20 @@ def mqtt_connect(client, userdata, flags, rc):
     client.subscribe("hap/alsa/#")
 
 def mqtt_message(client, userdata, msg):
-    app.logger.info('mqtt_thread message, topic=%s, payload=%s', msg.topic, msg.payload)
-    socketio.emit('action_reply', {'topic':msg.topic, 'payload':  msg.payload })
+    payload = msg.payload.decode('UTF-8')
+    app.logger.info('mqtt_thread message, topic=%s, payload=%s', msg.topic, payload)
+    socketio.emit('mqtt_reply', {'topic':msg.topic, 'payload': payload })
 
 def follow_happower():
     mqttcls = mqtt.Client()
     mqttcls.on_connect = mqtt_connect
     mqttcls.on_message = mqtt_message
+    mqttcls.connect(app.config['MPC_SERVER'], 1883, 60)
     will_continue = True
     while will_continue:
         try:
-            mqttcls.loop_forever()
+            socketio.sleep(1)
+            mqttcls.loop()
         except:
             will_continue = False
             app.logger.info('mqtt_thread break')

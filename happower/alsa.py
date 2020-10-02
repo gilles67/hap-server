@@ -2,6 +2,8 @@ import alsaaudio
 from threading import Thread, RLock
 
 al_lock = RLock()
+current_volume = 50
+current_state = "live"
 
 class SoundCard:
     def __init__(self, index):
@@ -35,6 +37,8 @@ class SoundCard:
         return "[%d]: %s\n(%s)" % (self.index, self.name, self.longname)
 
     def __convertVolume(self, value):
+        if value < 0:
+            return 0
         if value <= 8:
             return round((value * 4) + 17)
         if value <= 20:
@@ -49,6 +53,8 @@ class SoundCard:
             return round((value * 0.4) + 72)
         if value >= 60:
             return round((value * 0.1) + 90)
+        if value > 100:
+            return 100
 
 
 def getSoundCards():
@@ -61,10 +67,27 @@ def getSoundCards():
 def setAlsaVolume(payload, client):
     with al_lock:
         try:
+            volume = int(payload)
+        except:
+            if str(payload) == "vol-plus":
+                volume = current_volume + 5
+            if str(payload) == "vol-minus":
+                volume = current_volume - 5
+            if str(payload) == "vol-mute":
+                if(current_state == "mute"):
+                    current_state = "live"
+                    volume = current_volume
+                else:
+                    current_state = "mute"
+                    volume = 0
+        try:
             xmos = SoundCard(1)
             xmos.loadMixers()
-            xmos.setVolume(int(payload))
+            xmos.setVolume(volume)
             xmos.getVolume()
-            client.publish('hap/alsa/volume', int(payload))
+            if(current_state == "mute"):
+                client.publish('hap/alsa/volume', 0)
+            else:
+                client.publish('hap/alsa/volume', int(volume))
         except:
             print("Volume Set Error")

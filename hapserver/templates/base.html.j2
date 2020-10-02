@@ -60,9 +60,18 @@
       socket.on('action_reply', function(msg) {
         $("#player-song-title").text(msg['song']['title'])
         $("#player-song-name").text(msg['song']['name'])
-        $("#player-action-volume").val(msg['status']['volume'])
-        console.log(msg)
+        //$("#player-action-volume").val(msg['status']['volume'])
+        //console.log(msg['status']['state'])
+        //console.log(msg)
       })
+      socket.on('mqtt_reply', function(msg) {
+        console.log(msg)
+        if(msg.topic == "hap/alsa/volume") {
+          $("#player-action-volume").val(msg.payload)
+          console.log($("#player-action-volume")[0].value, msg.payload)
+        }
+      })
+
       $('a.foot-player-action').click(function(event) {
         var action = event.currentTarget.getAttribute('data-player-action')
         if (event.target.hasAttribute('data-player-radio-id')) {
@@ -74,7 +83,7 @@
         return false;
       });
       $("#player-action-volume").on('input', function(event){
-        socket.emit('action', {action: 'volume', volume: event.currentTarget.value });
+        //socket.emit('action', {action: 'volume', volume: event.currentTarget.value });
       })
     })
   </script></body>
