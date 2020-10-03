@@ -1,4 +1,3 @@
-from mpd import MPDClient
 from gpio import setAudioPower, setAmpliPower
 from happower import pled
 from alsa import resumeVolume, setMixerVolume
@@ -20,7 +19,6 @@ class PowerManagement(Thread):
         self.counter = 0
         self.client = None
         self.current_state = "Off"
-        self.mpd = MPDClient()
 
     def setClient(self, client):
         self.client = client
@@ -28,11 +26,6 @@ class PowerManagement(Thread):
     def stop(self):
         self.continu = False
         self.join()
-        try:
-            self.mpd.close()
-            self.mpd.disconnect()
-        except:
-            pass
 
     def TogglePower(self):
         if self.current_state == "Off":
@@ -72,9 +65,6 @@ class PowerManagement(Thread):
         self.counter = 0
 
     def run(self):
-        self.mpd.timeout = 10
-        self.mpd.idletimeout = None
-        self.mpd.connect("localhost", 6600)
         while self.continu:
             with pm_verrou:
                 if self.seq_lock:
