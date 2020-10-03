@@ -19,10 +19,13 @@ if __name__ == '__main__':
         pled.start()
         pmanage.setClient(client)
         pmanage.start()
+        mmanage.setClient(client)
+        mmanage.start()
         client.loop_forever()
     except KeyboardInterrupt:
         pbutton.stop()
         pled.stop()
         pmanage.stop()
+        mmanage.stop()
         client.disconnect()
         gpio_exit()

@@ -107,7 +107,8 @@ def setAlsaVolume(payload, client):
         else:
             current_state = "mute"
             volume = 0
-    else:
+    elif current_state == "live":
+        volume = 0
         try:
             volume = int(payload)
         except:

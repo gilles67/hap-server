@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-from happower import pbutton, pled, pmanage
+from happower import pbutton, pled, pmanage, mmanage
 from gpio import setAudioPower, setAmpliPower
 from alsa import setAlsaVolume
 
@@ -27,6 +27,9 @@ def on_message(client, userdata, msg):
                 pmanage.TogglePower()
         if msg.topic == "hap/alsa/volume/set":
             setAlsaVolume(payload, client)
+        if msg.topic == "hap/music/command/set":
+            mmanage.command(payload)
+
     except Exception as err:
         print(err)
     finally:

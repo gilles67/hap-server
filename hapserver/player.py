@@ -107,7 +107,7 @@ def follow_happower():
     will_continue = True
     while will_continue:
         try:
-            socketio.sleep(1)
+            #socketio.sleep(1)
             mqttcls.loop()
         except:
             will_continue = False
