@@ -5,5 +5,5 @@ from power import PowerManagement
 pmanage = PowerManagement()
 from mqtt import client
 
-from mpd import MusicManagement
+from music import MusicManagement
 mmanage = MusicManagement()
